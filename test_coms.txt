@@ -1,0 +1,27 @@
+1. Проверка запрета на удаление (Бухгалтер не может удалять)
+\c finance_db user_accountant
+пароль --- accountant123
+DELETE FROM transactions WHERE transaction_id = 1;
+
+Ожидаемый результат: Ошибка
+
+2. Проверка запрета на просмотр логов (Бухгалтер не видит аудит)
+SELECT * FROM audit_log;
+
+Ожидаемый результат: Ошибка
+
+3. Проверка работы триггера (Аудит изменений)
+\c finance_db postgres
+UPDATE transactions SET amount = 55000.00 WHERE transaction_id = 1;
+SELECT * FROM audit_log;
+
+Ожидаемый результат: В таблице audit_log появится запись с операцией UPDATE, старыми (old_data) и новыми (new_data) значениями.
+
+4. Проверка целостности (Запрет отрицательной суммы)
+INSERT INTO transactions (user_id, category_id, amount, transaction_type) 
+VALUES (1, 1, -100, 'income');
+
+Ожидаемый результат: Ошибка
+
+
+ВСЕ ТЕСТЫ ВЕРНУЛИ ОЖИДАЕМЫЕ РЕЗУЛЬТАТЫ
